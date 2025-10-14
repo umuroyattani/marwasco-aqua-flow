@@ -47,7 +47,7 @@ const Admin = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("bookings")
-      .select("*, profiles(name, phone)")
+      .select("*, profiles(name, phone, email)")
       .order("booking_date", { ascending: false })
       .order("time_slot", { ascending: true });
 
@@ -143,7 +143,10 @@ const Admin = () => {
                             {booking.profiles?.name || "Unknown"}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {booking.profiles?.phone || "No phone"}
+                            📞 {booking.profiles?.phone || "No phone"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            ✉️ {booking.profiles?.email || "No email"}
                           </p>
                           <p className="text-sm">
                             Date: <span className="font-medium">{booking.booking_date}</span>
@@ -151,6 +154,11 @@ const Admin = () => {
                           <p className="text-sm">
                             Time: <span className="font-medium">{booking.time_slot}</span>
                           </p>
+                          {booking.mpesa_receipt_number && (
+                            <p className="text-sm text-green-600">
+                              ✓ Paid: {booking.mpesa_receipt_number}
+                            </p>
+                          )}
                         </div>
                         <div className="flex flex-col gap-2">
                           <Badge className={getStatusColor(booking.status)}>

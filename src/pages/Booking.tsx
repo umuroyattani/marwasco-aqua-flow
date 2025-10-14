@@ -150,10 +150,15 @@ const Booking = () => {
             <Droplet className="h-6 w-6 text-primary" />
             <span className="font-bold text-xl">Marwasco</span>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/profile")}>
+              My Bookings
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
