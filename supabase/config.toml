@@ -1,1 +1,7 @@
 project_id = "evelbnlhzrtdzknzivlk"
+
+[functions.mpesa-payment]
+verify_jwt = true
+
+[functions.mpesa-callback]
+verify_jwt = false

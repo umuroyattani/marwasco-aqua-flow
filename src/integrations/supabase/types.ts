@@ -17,8 +17,13 @@ export type Database = {
       bookings: {
         Row: {
           booking_date: string
+          checkout_request_id: string | null
           created_at: string
           id: string
+          mpesa_receipt_number: string | null
+          payment_date: string | null
+          payment_error: string | null
+          payment_phone: string | null
           status: string
           time_slot: string
           updated_at: string
@@ -26,8 +31,13 @@ export type Database = {
         }
         Insert: {
           booking_date: string
+          checkout_request_id?: string | null
           created_at?: string
           id?: string
+          mpesa_receipt_number?: string | null
+          payment_date?: string | null
+          payment_error?: string | null
+          payment_phone?: string | null
           status?: string
           time_slot: string
           updated_at?: string
@@ -35,8 +45,13 @@ export type Database = {
         }
         Update: {
           booking_date?: string
+          checkout_request_id?: string | null
           created_at?: string
           id?: string
+          mpesa_receipt_number?: string | null
+          payment_date?: string | null
+          payment_error?: string | null
+          payment_phone?: string | null
           status?: string
           time_slot?: string
           updated_at?: string

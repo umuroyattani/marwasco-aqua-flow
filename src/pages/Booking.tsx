@@ -76,23 +76,57 @@ const Booking = () => {
     const dateStr = format(selectedDate, "yyyy-MM-dd");
 
     try {
-      const { error } = await supabase.from("bookings").insert({
-        user_id: user.id,
-        booking_date: dateStr,
-        time_slot: selectedSlot,
-        status: "pending",
-      });
+      // Create booking first
+      const { data: booking, error: bookingError } = await supabase
+        .from("bookings")
+        .insert({
+          user_id: user.id,
+          booking_date: dateStr,
+          time_slot: selectedSlot,
+          status: "pending",
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (bookingError) throw bookingError;
 
-      toast({
-        title: "Booking Successful!",
-        description: `Your water tanker is booked for ${format(selectedDate, "PPP")} at ${selectedSlot}`,
-      });
+      // Get user profile for phone number
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("phone")
+        .eq("user_id", user.id)
+        .single();
 
-      // Refresh booked slots
-      fetchBookedSlots();
-      setSelectedSlot(null);
+      if (profileError || !profile?.phone) {
+        throw new Error("Phone number not found. Please update your profile.");
+      }
+
+      // Initiate M-Pesa payment (500 KES for water tanker)
+      const { data: paymentResult, error: paymentError } = await supabase.functions.invoke(
+        "mpesa-payment",
+        {
+          body: {
+            bookingId: booking.id,
+            phoneNumber: profile.phone,
+            amount: 500,
+          },
+        }
+      );
+
+      if (paymentError) throw paymentError;
+
+      if (paymentResult.success) {
+        toast({
+          title: "Payment Request Sent!",
+          description: "Please check your phone and enter your M-Pesa PIN to complete the payment.",
+        });
+
+        // Refresh booked slots
+        fetchBookedSlots();
+        setSelectedSlot(null);
+      } else {
+        throw new Error(paymentResult.error || "Payment initiation failed");
+      }
     } catch (error: any) {
       toast({
         title: "Booking Failed",
