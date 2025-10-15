@@ -20,6 +20,8 @@ export type Database = {
           checkout_request_id: string | null
           created_at: string
           id: string
+          litres: number
+          location: string
           mpesa_receipt_number: string | null
           payment_date: string | null
           payment_error: string | null
@@ -34,6 +36,8 @@ export type Database = {
           checkout_request_id?: string | null
           created_at?: string
           id?: string
+          litres?: number
+          location?: string
           mpesa_receipt_number?: string | null
           payment_date?: string | null
           payment_error?: string | null
@@ -48,6 +52,8 @@ export type Database = {
           checkout_request_id?: string | null
           created_at?: string
           id?: string
+          litres?: number
+          location?: string
           mpesa_receipt_number?: string | null
           payment_date?: string | null
           payment_error?: string | null

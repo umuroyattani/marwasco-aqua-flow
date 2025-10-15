@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Droplet, Loader2 } from "lucide-react";
+import { Droplet, Loader2, ShieldCheck } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -15,6 +15,9 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -26,7 +29,9 @@ const Auth = () => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         navigate("/booking");
       }
@@ -96,6 +101,106 @@ const Auth = () => {
     }
   };
 
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Hardcoded admin credentials check
+      if (adminUsername === "admin" && adminPassword === "Marwasco$2025") {
+        // Sign in with admin account
+        const { error } = await supabase.auth.signInWithPassword({
+          email: "admin@marwasco.local",
+          password: adminPassword,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Welcome Admin!",
+          description: "You've successfully logged in as admin.",
+        });
+        navigate("/admin");
+      } else {
+        throw new Error("Invalid admin credentials");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (showAdminLogin) {
+    return (
+      <div className="min-h-screen bg-gradient-light flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-card">
+          <CardHeader className="text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="bg-primary rounded-full p-4">
+                <ShieldCheck className="h-8 w-8 text-primary-foreground" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
+            <CardDescription>Access restricted area</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="admin-username">Username</Label>
+                <Input
+                  id="admin-username"
+                  type="text"
+                  placeholder="admin"
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="admin-password">Password</Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login as Admin"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="link"
+                onClick={() => {
+                  setShowAdminLogin(false);
+                  setAdminUsername("");
+                  setAdminPassword("");
+                }}
+                className="w-full"
+              >
+                Back to Customer Login
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-light flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-card">
@@ -114,7 +219,7 @@ const Auth = () => {
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="login">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
@@ -150,8 +255,19 @@ const Auth = () => {
                   )}
                 </Button>
               </form>
+              <div className="mt-4">
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={() => setShowAdminLogin(true)}
+                  className="w-full text-sm text-muted-foreground"
+                >
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  Admin Login
+                </Button>
+              </div>
             </TabsContent>
-            
+
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
@@ -170,7 +286,7 @@ const Auth = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="0700000000"
+                    placeholder="254712345678"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
