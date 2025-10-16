@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Droplet, LogOut, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
+import { Navigation } from "@/components/Navigation";
 
 const TIME_SLOTS = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00"];
 
@@ -168,11 +169,8 @@ const Booking = () => {
           description: `Please check your phone and enter your M-Pesa PIN to pay KSH ${calculatedAmount.toLocaleString()}`,
         });
 
-        // Refresh booked slots
-        fetchBookedSlots();
-        setSelectedSlot(null);
-        setLitres(1000);
-        setLocation("");
+        // Navigate to success page
+        navigate(`/booking-success?bookingId=${booking.id}`);
       } else {
         throw new Error(paymentResult.error || "Payment initiation failed");
       }
@@ -192,24 +190,7 @@ const Booking = () => {
 
   return (
     <div className="min-h-screen bg-gradient-light">
-      {/* Header */}
-      <header className="bg-background border-b shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Droplet className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl">Marwasco</span>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/profile")}>
-              My Bookings
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">

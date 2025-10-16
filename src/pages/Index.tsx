@@ -1,20 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Droplet, Calendar, CreditCard, Star, Clock, Shield } from "lucide-react";
+import { Calendar, CreditCard, Clock, Shield } from "lucide-react";
+import { Navigation } from "@/components/Navigation";
+import marwascoLogo from "@/assets/marwasco-logo.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen">
+      <Navigation showAuthButtons={false} />
+      
       {/* Hero Section */}
       <section className="relative bg-gradient-primary text-primary-foreground overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yIDIuMjEtMiAyLjIxLTJzMi4yMSAwIDIuMjEgMnYyYzAgMi0yLjIxIDItMi4yMSAycy0yLjIxIDAtMi4yMS0ydi0yeiIvPjwvZz48L2c+PC9zdmc+')] opacity-10"></div>
         <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center justify-center p-3 bg-primary-foreground/10 rounded-full mb-4">
-              <Droplet className="h-12 w-12" />
+            <div className="inline-flex items-center justify-center mb-4">
+              <img src={marwascoLogo} alt="Marwasco Logo" className="h-24 w-24 rounded-full object-cover shadow-lg" />
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
               Marwasco Water Tanker Booking
@@ -155,8 +159,8 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-primary text-primary-foreground py-8">
         <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Droplet className="h-6 w-6" />
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img src={marwascoLogo} alt="Marwasco Logo" className="h-10 w-10 rounded-full object-cover" />
             <span className="font-bold text-xl">Marwasco</span>
           </div>
           <p className="text-primary-foreground/80">

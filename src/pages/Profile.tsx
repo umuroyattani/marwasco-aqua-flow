@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Droplet, LogOut, Calendar, Clock, CreditCard, User, MapPin } from "lucide-react";
+import { Calendar, Clock, CreditCard, User, MapPin, Trash2 } from "lucide-react";
+import { Navigation } from "@/components/Navigation";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -151,26 +152,30 @@ const Profile = () => {
     return bookings.some((b) => b.id === bookingId && b.ratings && b.ratings.length > 0);
   };
 
+  const handleDeleteBooking = async (bookingId: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .delete()
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete booking",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Booking deleted successfully",
+      });
+      fetchBookings(user.id);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-light">
-      {/* Header */}
-      <header className="bg-background border-b shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Droplet className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl">Marwasco</span>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/booking")}>
-              New Booking
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
@@ -293,6 +298,18 @@ const Profile = () => {
                               </p>
                             )}
                           </div>
+                        )}
+                        
+                        {(booking.status === "pending" || booking.status === "payment_failed") && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteBooking(booking.id)}
+                            className="mt-4 w-full"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Booking
+                          </Button>
                         )}
                       </CardContent>
                     </Card>

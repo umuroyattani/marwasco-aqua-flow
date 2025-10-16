@@ -4,9 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Droplet, LogOut, MapPin } from "lucide-react";
+import { MapPin, Trash2, FileDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { Navigation } from "@/components/Navigation";
 
 const Admin = () => {
   const [bookings, setBookings] = useState<any[]>([]);
@@ -106,27 +107,80 @@ const Admin = () => {
     }
   };
 
+  const handleDeleteBooking = async (bookingId: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .delete()
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete booking",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Booking deleted successfully",
+      });
+      fetchBookings();
+    }
+  };
+
+  const exportAudit = async () => {
+    const { data, error } = await supabase
+      .from("admin_transaction_audit")
+      .select("*");
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to export audit",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Convert to CSV
+    const headers = Object.keys(data[0] || {});
+    const csv = [
+      headers.join(","),
+      ...data.map((row) =>
+        headers.map((header) => JSON.stringify(row[header] || "")).join(",")
+      ),
+    ].join("\n");
+
+    // Download file
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `marwasco-audit-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Success",
+      description: "Audit report exported successfully",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-light">
-      {/* Header */}
-      <header className="bg-background border-b shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Droplet className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl">Marwasco Admin</span>
-          </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>All Bookings</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle>All Bookings</CardTitle>
+              <Button onClick={exportAudit} variant="outline">
+                <FileDown className="mr-2 h-4 w-4" />
+                Export Audit
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -216,6 +270,16 @@ const Admin = () => {
                                 onClick={() => updateBookingStatus(booking.id, "payment_failed")}
                               >
                                 Mark Failed
+                              </Button>
+                            )}
+                            {(booking.status === 'pending' || booking.status === 'payment_failed') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteBooking(booking.id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
                               </Button>
                             )}
                           </div>

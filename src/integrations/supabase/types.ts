@@ -125,6 +125,13 @@ export type Database = {
             foreignKeyName: "ratings_booking_id_fkey"
             columns: ["booking_id"]
             isOneToOne: true
+            referencedRelation: "admin_transaction_audit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ratings_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
             referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
@@ -153,9 +160,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_transaction_audit: {
+        Row: {
+          amount: number | null
+          booking_date: string | null
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          id: string | null
+          litres: number | null
+          location: string | null
+          mpesa_receipt_number: string | null
+          payment_date: string | null
+          payment_phone: string | null
+          status: string | null
+          time_slot: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      cleanup_old_failed_bookings: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
