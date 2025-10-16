@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Trash2, FileDown } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Navigation } from "@/components/Navigation";
@@ -12,15 +13,16 @@ import { Navigation } from "@/components/Navigation";
 const Admin = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterMonth, setFilterMonth] = useState<string>("");
+  const [filterYear, setFilterYear] = useState<string>(new Date().getFullYear().toString());
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    checkAdmin();
-    fetchBookings();
+    checkAdminAndFetch();
   }, []);
 
-  const checkAdmin = async () => {
+  const checkAdminAndFetch = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate("/auth");
@@ -42,27 +44,48 @@ const Admin = () => {
         variant: "destructive",
       });
       navigate("/booking");
+      return;
     }
+
+    // Only fetch bookings if admin verified
+    fetchBookings();
   };
 
   const fetchBookings = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    
+    // Fetch bookings first
+    const { data: bookingsData, error: bookingsError } = await supabase
       .from("bookings")
-      .select("*, profiles(name, phone, email)")
+      .select("*")
       .order("booking_date", { ascending: false })
       .order("time_slot", { ascending: true });
 
-    if (error) {
-      console.error("Error fetching bookings:", error);
+    if (bookingsError) {
+      console.error("Error fetching bookings:", bookingsError);
       toast({
         title: "Error",
         description: "Failed to load bookings",
         variant: "destructive",
       });
-    } else {
-      setBookings(data || []);
+      setLoading(false);
+      return;
     }
+
+    // Fetch profiles separately
+    const userIds = [...new Set(bookingsData.map(b => b.user_id))];
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("user_id, name, phone, email")
+      .in("user_id", userIds);
+
+    // Merge bookings with profiles
+    const bookingsWithProfiles = bookingsData.map(booking => ({
+      ...booking,
+      profiles: profilesData?.find(p => p.user_id === booking.user_id) || null
+    }));
+
+    setBookings(bookingsWithProfiles);
     setLoading(false);
   };
 
@@ -129,14 +152,44 @@ const Admin = () => {
   };
 
   const exportAudit = async () => {
-    const { data, error } = await supabase
+    let query = supabase
       .from("admin_transaction_audit")
       .select("*");
+
+    // Apply filters if selected
+    if (filterMonth && filterYear) {
+      const monthNum = parseInt(filterMonth);
+      const yearNum = parseInt(filterYear);
+      const startDate = new Date(yearNum, monthNum - 1, 1);
+      const endDate = new Date(yearNum, monthNum, 0);
+      
+      query = query
+        .gte("payment_date", startDate.toISOString())
+        .lte("payment_date", endDate.toISOString());
+    } else if (filterYear) {
+      const startDate = new Date(parseInt(filterYear), 0, 1);
+      const endDate = new Date(parseInt(filterYear), 11, 31);
+      
+      query = query
+        .gte("payment_date", startDate.toISOString())
+        .lte("payment_date", endDate.toISOString());
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       toast({
         title: "Error",
         description: "Failed to export audit",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      toast({
+        title: "No Data",
+        description: "No transactions found for the selected period",
         variant: "destructive",
       });
       return;
@@ -156,7 +209,20 @@ const Admin = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `marwasco-audit-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    
+    // Generate filename based on filters
+    let filename = "marwasco-audit";
+    if (filterMonth && filterYear) {
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      filename += `-${monthNames[parseInt(filterMonth) - 1]}-${filterYear}`;
+    } else if (filterYear) {
+      filename += `-${filterYear}`;
+    } else {
+      filename += `-${format(new Date(), "yyyy-MM-dd")}`;
+    }
+    filename += ".csv";
+    
+    a.download = filename;
     a.click();
     window.URL.revokeObjectURL(url);
 
@@ -174,12 +240,54 @@ const Admin = () => {
       <div className="container mx-auto px-4 py-8">
         <Card className="shadow-card">
           <CardHeader>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-4">
               <CardTitle>All Bookings</CardTitle>
-              <Button onClick={exportAudit} variant="outline">
-                <FileDown className="mr-2 h-4 w-4" />
-                Export Audit
-              </Button>
+              
+              {/* Export Filters */}
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+                <div className="flex-1 space-y-2">
+                  <label className="text-sm font-medium">Filter Year</label>
+                  <Select value={filterYear} onValueChange={setFilterYear}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2024">2024</SelectItem>
+                      <SelectItem value="2025">2025</SelectItem>
+                      <SelectItem value="2026">2026</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex-1 space-y-2">
+                  <label className="text-sm font-medium">Filter Month (Optional)</label>
+                  <Select value={filterMonth} onValueChange={setFilterMonth}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All months" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Months</SelectItem>
+                      <SelectItem value="1">January</SelectItem>
+                      <SelectItem value="2">February</SelectItem>
+                      <SelectItem value="3">March</SelectItem>
+                      <SelectItem value="4">April</SelectItem>
+                      <SelectItem value="5">May</SelectItem>
+                      <SelectItem value="6">June</SelectItem>
+                      <SelectItem value="7">July</SelectItem>
+                      <SelectItem value="8">August</SelectItem>
+                      <SelectItem value="9">September</SelectItem>
+                      <SelectItem value="10">October</SelectItem>
+                      <SelectItem value="11">November</SelectItem>
+                      <SelectItem value="12">December</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button onClick={exportAudit} variant="outline" className="shrink-0">
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Export CSV
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
