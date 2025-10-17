@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useNavigate } from "react-router-dom";
 import { Calendar, CreditCard, Clock, Shield } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
-import marwascoLogo from "@/assets/marwasco-logo.jpg";
+import marwascoLogo from "@/assets/marwasco-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();

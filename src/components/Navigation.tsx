@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, LogOut, User, Calendar, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import marwascoLogo from "@/assets/marwasco-logo.jpg";
+import marwascoLogo from "@/assets/marwasco-logo.png";
 
 interface NavigationProps {
   showAuthButtons?: boolean;
@@ -92,7 +92,7 @@ export const Navigation = ({ showAuthButtons = true }: NavigationProps) => {
             <img 
               src={marwascoLogo} 
               alt="Marwasco Logo" 
-              className="h-12 w-auto object-contain"
+              className="h-16 w-16 object-contain"
             />
             <span className="font-bold text-xl text-foreground">Marwasco</span>
           </Link>
