@@ -13,7 +13,7 @@ import { Navigation } from "@/components/Navigation";
 const Admin = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterMonth, setFilterMonth] = useState<string>("");
+  const [filterMonth, setFilterMonth] = useState<string>("all");
   const [filterYear, setFilterYear] = useState<string>(new Date().getFullYear().toString());
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -177,7 +177,7 @@ const Admin = () => {
       .select("*");
 
     // Apply filters if selected
-    if (filterMonth && filterYear) {
+    if (filterMonth && filterMonth !== "all" && filterYear) {
       const monthNum = parseInt(filterMonth);
       const yearNum = parseInt(filterYear);
       const startDate = new Date(yearNum, monthNum - 1, 1);
@@ -232,7 +232,7 @@ const Admin = () => {
     
     // Generate filename based on filters
     let filename = "marwasco-audit";
-    if (filterMonth && filterYear) {
+    if (filterMonth && filterMonth !== "all" && filterYear) {
       const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       filename += `-${monthNames[parseInt(filterMonth) - 1]}-${filterYear}`;
     } else if (filterYear) {
@@ -286,7 +286,7 @@ const Admin = () => {
                       <SelectValue placeholder="All months" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Months</SelectItem>
+                      <SelectItem value="all">All Months</SelectItem>
                       <SelectItem value="1">January</SelectItem>
                       <SelectItem value="2">February</SelectItem>
                       <SelectItem value="3">March</SelectItem>
