@@ -54,39 +54,59 @@ const Admin = () => {
   const fetchBookings = async () => {
     setLoading(true);
     
-    // Fetch bookings first
-    const { data: bookingsData, error: bookingsError } = await supabase
-      .from("bookings")
-      .select("*")
-      .order("booking_date", { ascending: false })
-      .order("time_slot", { ascending: true });
+    try {
+      // Fetch bookings first
+      const { data: bookingsData, error: bookingsError } = await supabase
+        .from("bookings")
+        .select("*")
+        .order("booking_date", { ascending: false })
+        .order("time_slot", { ascending: true });
 
-    if (bookingsError) {
-      console.error("Error fetching bookings:", bookingsError);
+      if (bookingsError) {
+        console.error("Error fetching bookings:", bookingsError);
+        toast({
+          title: "Error",
+          description: "Failed to load bookings",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (!bookingsData || bookingsData.length === 0) {
+        setBookings([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch profiles separately
+      const userIds = [...new Set(bookingsData.map(b => b.user_id))];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("user_id, name, phone, email")
+        .in("user_id", userIds);
+
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+      }
+
+      // Merge bookings with profiles
+      const bookingsWithProfiles = bookingsData.map(booking => ({
+        ...booking,
+        profiles: profilesData?.find(p => p.user_id === booking.user_id) || null
+      }));
+
+      setBookings(bookingsWithProfiles);
+    } catch (error) {
+      console.error("Unexpected error:", error);
       toast({
         title: "Error",
-        description: "Failed to load bookings",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // Fetch profiles separately
-    const userIds = [...new Set(bookingsData.map(b => b.user_id))];
-    const { data: profilesData } = await supabase
-      .from("profiles")
-      .select("user_id, name, phone, email")
-      .in("user_id", userIds);
-
-    // Merge bookings with profiles
-    const bookingsWithProfiles = bookingsData.map(booking => ({
-      ...booking,
-      profiles: profilesData?.find(p => p.user_id === booking.user_id) || null
-    }));
-
-    setBookings(bookingsWithProfiles);
-    setLoading(false);
   };
 
   const updateBookingStatus = async (bookingId: string, newStatus: string) => {
@@ -336,7 +356,7 @@ const Admin = () => {
                               <span className="font-medium">Litres:</span> {booking.litres.toLocaleString()}
                             </p>
                             <p className="text-sm">
-                              <span className="font-medium">Amount:</span> KSH {(booking.litres * 2).toLocaleString()}
+                              <span className="font-medium">Amount:</span> KSH {Math.round((booking.litres * 7000) / 13000).toLocaleString()}
                             </p>
                             {booking.mpesa_receipt_number && (
                               <p className="text-sm text-green-600">

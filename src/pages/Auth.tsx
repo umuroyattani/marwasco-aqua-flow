@@ -42,6 +42,18 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate phone number format (Kenyan format)
+    const phoneRegex = /^(\+254|0)[17]\d{8}$/;
+    if (!phoneRegex.test(phone)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Please enter a valid Kenyan phone number (e.g., 0712345678 or +254712345678)",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -286,11 +298,14 @@ const Auth = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="254712345678"
+                    placeholder="0712345678 or +254712345678"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
+                    pattern="(\+254|0)[17]\d{8}"
+                    title="Enter a valid Kenyan phone number"
                     required
                   />
+                  <p className="text-xs text-muted-foreground">Format: 0712345678 or +254712345678</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>

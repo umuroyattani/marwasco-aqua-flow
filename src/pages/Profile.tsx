@@ -259,9 +259,9 @@ const Profile = () => {
                             <p className="text-sm">
                               <strong>Litres:</strong> {booking.litres.toLocaleString()}
                             </p>
-                            <p className="text-sm">
-                              <strong>Amount:</strong> KSH {(booking.litres * 2).toLocaleString()}
-                            </p>
+                          <p className="text-sm">
+                            <span className="font-medium">Amount:</span> KSH {Math.round((booking.litres * 7000) / 13000).toLocaleString()}
+                          </p>
                             <div className="flex items-center gap-2">
                               <CreditCard className="h-4 w-4 text-muted-foreground" />
                               <span className="text-sm">

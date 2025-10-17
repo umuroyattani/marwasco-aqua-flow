@@ -99,7 +99,8 @@ const Booking = () => {
 
     setLoading(true);
     const dateStr = format(selectedDate, "yyyy-MM-dd");
-    const calculatedAmount = litres * 2; // KSH 2 per litre
+    // Calculate amount based on litres (13000 litres = KSH 7000)
+    const calculatedAmount = Math.round((litres * 7000) / 13000);
 
     try {
       // Check if slot is already booked and confirmed/delivered
@@ -251,7 +252,7 @@ const Booking = () => {
                       required
                     />
                     <p className="text-sm text-muted-foreground">
-                      Amount to pay: <span className="font-semibold text-primary">KSH {(litres * 2).toLocaleString()}</span>
+                      Amount to pay: <span className="font-semibold text-primary">KSH {Math.round((litres * 7000) / 13000).toLocaleString()}</span>
                     </p>
                   </div>
                 </CardContent>
@@ -301,7 +302,7 @@ const Booking = () => {
                       className="w-full mt-4"
                       size="lg"
                     >
-                      {loading ? "Processing..." : `Pay KSH ${(litres * 2).toLocaleString()} & Confirm`}
+                      {loading ? "Processing..." : `Pay KSH ${Math.round((litres * 7000) / 13000).toLocaleString()} & Confirm`}
                     </Button>
                   )}
                 </CardContent>

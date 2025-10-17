@@ -18,7 +18,11 @@ const Index = () => {
         <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center justify-center mb-4">
-              <img src={marwascoLogo} alt="Marwasco Logo" className="h-24 w-24 rounded-full object-cover shadow-lg" />
+              <img 
+                src={marwascoLogo} 
+                alt="Marwasco Logo" 
+                className="h-24 w-auto object-contain shadow-primary"
+              />
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
               Marwasco Water Tanker Booking
@@ -160,7 +164,11 @@ const Index = () => {
       <footer className="bg-primary text-primary-foreground py-8">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img src={marwascoLogo} alt="Marwasco Logo" className="h-10 w-10 rounded-full object-cover" />
+            <img 
+              src={marwascoLogo} 
+              alt="Marwasco Logo" 
+              className="h-10 w-auto object-contain"
+            />
             <span className="font-bold text-xl">Marwasco</span>
           </div>
           <p className="text-primary-foreground/80">
