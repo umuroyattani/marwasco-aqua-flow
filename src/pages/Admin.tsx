@@ -135,6 +135,13 @@ const Admin = () => {
     navigate("/");
   };
 
+  const formatStatus = (status: string) => {
+    return status
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -369,7 +376,7 @@ const Admin = () => {
                         {/* Status and Actions */}
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-t pt-4">
                           <Badge className={getStatusColor(booking.status)}>
-                            {booking.status}
+                            {formatStatus(booking.status)}
                           </Badge>
                           
                           <div className="flex flex-wrap gap-2">

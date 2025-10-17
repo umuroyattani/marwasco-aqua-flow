@@ -133,6 +133,13 @@ const Profile = () => {
     setSelectedBooking(null);
   };
 
+  const formatStatus = (status: string) => {
+    return status
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed":
@@ -272,7 +279,7 @@ const Profile = () => {
                             </div>
                           </div>
                           <Badge className={getStatusColor(booking.status)}>
-                            {booking.status}
+                            {formatStatus(booking.status)}
                           </Badge>
                         </div>
 

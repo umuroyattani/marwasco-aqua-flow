@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Droplet, Loader2, ShieldCheck } from "lucide-react";
+import { Droplet, Loader2, ShieldCheck, ArrowLeft } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -151,14 +151,25 @@ const Auth = () => {
     return (
       <div className="min-h-screen bg-gradient-light flex items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-card">
-          <CardHeader className="text-center space-y-4">
+          <CardHeader className="space-y-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/")}
+              className="w-fit"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Button>
+            <div className="text-center space-y-4">
             <div className="flex justify-center">
               <div className="bg-primary rounded-full p-4">
                 <ShieldCheck className="h-8 w-8 text-primary-foreground" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
-            <CardDescription>Access restricted area</CardDescription>
+              <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
+              <CardDescription>Access restricted area</CardDescription>
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAdminLogin} className="space-y-4">
@@ -216,14 +227,25 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-light flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-card">
-        <CardHeader className="text-center space-y-4">
+        <CardHeader className="space-y-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/")}
+            className="w-fit"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+          </Button>
+          <div className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="bg-primary rounded-full p-4">
               <Droplet className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">Marwasco Water Tanker</CardTitle>
-          <CardDescription>Book water delivery with ease</CardDescription>
+            <CardTitle className="text-2xl font-bold">Marwasco Water Tanker</CardTitle>
+            <CardDescription>Book water delivery with ease</CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
